@@ -16,7 +16,6 @@ class GrabParam:
         self.cookie = dict(v=my_cookie)
 
 
-
 def fetch_all_hgtb(_from, _to, grab_param):
     grab_param.dir_name = get_now_date() + '/hgtb/'
     grab_param.file_name = 'hgtb'
@@ -38,8 +37,6 @@ def fetch_all_sgtb(_from, _to, grab_param):
 
 
 def do_grab(grab_param, i):
-    # url_prefix = 'http://data.10jqka.com.cn/hgt/hgtb/field/zdf/order/desc/ajax/1/page/'
-    # url_suffix = '/'
     url = grab_param.url_prefix + str(i) + grab_param.url_suffix
 
     headers = {
@@ -68,8 +65,6 @@ def get_now_date():
     return '{:d}{:0>2d}{:d}'.format(date.year, date.month, date.day)
 
 
-
-
 def fetch_sgtb(date, i):
         url_prefix = 'http://data.10jqka.com.cn/hgt/sgtb/field/zdf/order/desc/page/'
         url_suffix = '/ajax/1/'
@@ -96,28 +91,11 @@ def fetch_sgtb(date, i):
             f.write(res1.text)
 
 
-
-
-
-
-
-
-
-
-
 def save_in_disk(path, filename, content):
         if not os.path.exists(path):
             os.makedirs(path)
         with open(filename, 'w') as f:
             f.write(content)
-
-
-# def check_cookie_exist():
-#     global cookie
-#     if len(cookie) == 0:
-#         print('Set cookie First !')
-#         return False
-#     return True
 
 
 if __name__ == '__main__':

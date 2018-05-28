@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas
 import datetime
+import os
 
 from bs4 import BeautifulSoup
 
@@ -48,7 +49,7 @@ def format_column_name(line_tds):
 def clean_up_data():
     date_string = datetime.date(2018, 5, 28).strftime("%Y-%m-%d")
 
-    with open('data/20180528/sgtb/sgtb3.txt', 'r') as f:
+    with open('data/20180526/sgtb/sgtb3.txt', 'r') as f:
         html_data = f.read()
     soup_data = BeautifulSoup(html_data, 'lxml')
     line_tr = soup_data.find_all('tr')
@@ -72,13 +73,35 @@ def clean_up_data():
     return column_array, line_series
 
 
+def new_file_to_csv(path, filename, _content_df):
+    # todo if file exit mode ='a'
 
+    if not os.path.exists(path):
+            os.makedirs(path)
+
+    _content_df.to_csv(path + filename + '.csv', mode='w', index=False, encoding='utf_8_sig')
+
+
+def collected_by_stock_num(_result_df):
+
+    successful_saved_stock = []
+    for i in range(0, len(_result_df)):
+        _i_df = _result_df.loc[[i]]
+        # print(_i_df)
+        _stock_num = str(_i_df.iat[0, 1])
+        successful_saved_stock.append(_stock_num)
+        new_file_to_csv('data/hsgt_history_by_stock/', '{:s}'.format(_stock_num), _i_df)
+
+    # todo return total saved_stock_num
 
 
 if __name__ == '__main__':
+    # todo move code block into module
+
     result_tuple = clean_up_data()
     result_df = pandas.DataFrame(result_tuple[1], columns=result_tuple[0])
-    print(result_df)
+    # print(result_df)
+    collected_by_stock_num(result_df)
 
     # grab_data_hsgt()
     # test_plot()
