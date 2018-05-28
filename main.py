@@ -76,6 +76,13 @@ def clean_up_data():
 def new_file_to_csv(path, filename, _content_df):
     # todo if file exit mode ='a'
 
+    # 检查路径是否存在
+    # path = pathlib.Path("path/file")
+    # path.exist()
+    # 检查路径是否是文件
+    # path = pathlib.Path("path/file")
+    # path.is_file()
+
     if not os.path.exists(path):
             os.makedirs(path)
 
