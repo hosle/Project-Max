@@ -47,15 +47,23 @@ def test_plot():
     plt.show()
 
 
+def read_stock_data():
+    stock_df = pandas.read_csv('data/hsgt_history_by_stock/000333.csv', header=0, index_col=0,
+                               dtype={'股票代码': str})
+    print(stock_df)
+
+
 if __name__ == '__main__':
-    # step 1
+    # [step 1] :  Grab data
     #  grab_data_hsgt()
     # test_plot()
 
-    # step 2
+    # [step 2] : Organized Data
     # update_organized_data()
-    update_all_organized_data()
+    # update_all_organized_data()
 
+    # [step 3] : Analysis
+    read_stock_data()
 
 
 
