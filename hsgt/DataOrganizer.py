@@ -1,29 +1,21 @@
-
-import hsgt
+"""
+Created on 18/5/29
+@Author hosle 
+Original@ AIStock
+"""
 
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas
 import datetime
 import pathlib
-
 from bs4 import BeautifulSoup
 
-
-def grab_data_hsgt():
-    _cookie = 'AmJXz95sTbb3BVHqHUmnAQXStePAs2YJGLVb0qz4j4iBoQxVlEO23ehHqgJ_'
-
-    grabParam = hsgt.GrabParam(_cookie)
-
-    hsgt.fetch_all_hgtb(10, 12, grabParam)
-    # hsgt.fetch_all_sgtb(14, 17, grabParam)
+__all__ = ['clean_up_data', 'collected_by_stock_num']
 
 
-def test_plot():
-    x = np.linspace(0, 1)
-    y = np.sin(4 * np.pi * x) * np.exp(-5 * x)
-    plt.plot(x, y, 'o')
-    plt.show()
+class OrganizeParam:
+    def __init__(self, _ori_file_name):
+        self.file_name = _ori_file_name
 
 
 def format_one_line(line_tds):
@@ -96,19 +88,4 @@ def collected_by_stock_num(_result_df, save_fun):
         _stock_num = str(_i_df.iat[0, 1])
         save_fun(_stock_num)
         update_to_csv('data/hsgt_history_by_stock/', '{:s}'.format(_stock_num), _i_df)
-
-
-if __name__ == '__main__':
-    # todo move code block into module
-
-    result_tuple = clean_up_data()
-    result_df = pandas.DataFrame(result_tuple[1], columns=result_tuple[0])
-    successful_saved_stock = []
-    collected_by_stock_num(result_df, lambda x: successful_saved_stock.append(x))
-    print(successful_saved_stock)
-    # test_df = pandas.DataFrame()
-    # update_to_csv('data/hsgt_history_by_stock/', '000000', test_df)
-
-    # grab_data_hsgt()
-    # test_plot()
 
