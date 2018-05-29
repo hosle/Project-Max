@@ -62,7 +62,7 @@ def do_grab(grab_param, i):
 
 def get_now_date():
     date = datetime.datetime.now()
-    return '{:d}{:0>2d}{:d}'.format(date.year, date.month, date.day)
+    return date.strftime('%Y%m%d')
 
 
 def fetch_sgtb(date, i):
@@ -72,7 +72,8 @@ def fetch_sgtb(date, i):
         url = url_prefix + str(i) + url_suffix
 
         headers = {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/66.0.3359.181 Safari/537.36",
             'Host': 'data.10jqka.com.cn',
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Accept-Encoding': 'gzip, deflate',
