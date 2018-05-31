@@ -83,31 +83,35 @@ if __name__ == '__main__':
     font = FontProperties(fname='/Library/Fonts/Songti.ttc',
                           size=10)
 
-    stock_df = read_stock_data('000333')
+    stock_df = read_stock_data('600004')
 
     format_stock_df = stock_df.applymap(unit_yi_to_10_thousand)
 
-    plot_stock_df = format_stock_df.iloc[:, [2, 9]]
-    print(plot_stock_df)
+    stock_num = format_stock_df.iat[0, 0]
+    stock_name = format_stock_df.iat[0, 1]
+    series_latest_price = format_stock_df.iloc[:, 2]
+    series_funds_inflow = format_stock_df.iloc[:, 9]
+    series_exchange_rate = format_stock_df.iloc[:, -1]
+
+    # print(series_latest_price)
+    # print(series_funds_inflow)
 
     plt.figure()
-    series1 = plot_stock_df.iloc[:, 0]
-    series2 = plot_stock_df.iloc[:, 1]
+    plt.subplot(311)
+    plt.title('{:s}'.format(stock_num, stock_name), fontproperties=font)
 
-    print(series1)
-    print(series2)
+    plt.ylabel(series_latest_price.name, fontproperties=font)
+    plt.plot(series_latest_price)
+    plt.grid(True)
 
-    plt.figure()
-    plt.subplot(211)
-    plt.title('000333美的集团', fontproperties=font)
-    plt.xlabel('时间', fontproperties=font)
-    plt.ylabel(series1.name, fontproperties=font)
-    plt.plot(series1)
+    plt.subplot(312)
+    plt.ylabel(series_funds_inflow.name, fontproperties=font)
+    plt.plot(series_funds_inflow)
+    plt.grid(True)
 
-    plt.subplot(212)
-    plt.ylabel(series2.name, fontproperties=font)
-    plt.plot(series2)
-
+    plt.subplot(313)
+    plt.ylabel(series_exchange_rate.name, fontproperties=font)
+    plt.plot(series_exchange_rate)
     plt.grid(True)
     plt.show()
 
