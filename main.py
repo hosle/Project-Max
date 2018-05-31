@@ -10,23 +10,30 @@ import datetime
 
 from bs4 import BeautifulSoup
 
+count_hgtb = 11
+count_sgtb = 17
 
 
 def grab_data_hsgt():
-    _cookie = 'AqeSnEsTsLBGIDQ87beqovilMNB1LHu31QP_gnkUwQJcm8mGgfwLXuXQj9aK'
+    _cookie = 'AoSxZQzCg3i1tje0_TT-0IAmUwl1najFasM8JZ4lEpwQ0io_xq14l7rRDNjt'
 
+    global count_hgtb
+    global count_sgtb
     grab_param = hsgt.GrabParam(_cookie)
 
-    hsgt.fetch_all_hgtb(11, 12, grab_param)
-    # hsgt.fetch_all_sgtb(16, 17, grab_param)
+    hsgt.fetch_all_hgtb(8, count_hgtb, grab_param)
+    # hsgt.fetch_all_sgtb(13, count_sgtb, grab_param)
 
 
-def update_all_organized_data():
+def update_all_organized_data(_date_string):
+    global count_hgtb
+    global count_sgtb
+
     file_names = []
-    for i_hgtb in range(1, 13):
-        file_names.append('data/20180530/hgtb/hgtb{:d}.txt'.format(i_hgtb))
-    for i_sgtb in range(1, 18):
-        file_names.append('data/20180530/sgtb/sgtb{:d}.txt'.format(i_sgtb))
+    for i_hgtb in range(1, count_hgtb + 1):
+        file_names.append('data/{:s}/hgtb/hgtb{:d}.txt'.format(_date_string, i_hgtb))
+    for i_sgtb in range(1, count_sgtb + 1):
+        file_names.append('data/{:s}/sgtb/sgtb{:d}.txt'.format(_date_string, i_sgtb))
 
     for file in file_names:
         update_organized_data(file)
@@ -68,24 +75,13 @@ def unit_yi_to_10_thousand(x):
         return x
 
 
-
-if __name__ == '__main__':
-    # plt.rcParams['font.family']=['simsun']
-
-
-    # [step 1] :  Grab data
-    #  grab_data_hsgt()
-
-    # [step 2] : Organized Data
-    # update_all_organized_data()
-
-    # [step 3] : Analysis
+def plot_price_fundflow(_plot_stock_num):
     font = FontProperties(fname='/Library/Fonts/Songti.ttc',
                           size=10)
 
-    stock_df = read_stock_data('600004')
+    stock_df = read_stock_data(_plot_stock_num)
 
-    format_stock_df = stock_df.applymap(unit_yi_to_10_thousand)
+    format_stock_df = stock_df.drop_duplicates().applymap(unit_yi_to_10_thousand)
 
     stock_num = format_stock_df.iat[0, 0]
     stock_name = format_stock_df.iat[0, 1]
@@ -98,7 +94,7 @@ if __name__ == '__main__':
 
     plt.figure()
     plt.subplot(311)
-    plt.title('{:s}'.format(stock_num, stock_name), fontproperties=font)
+    plt.title('{:s}{:s}'.format(stock_num, stock_name), fontproperties=font)
 
     plt.ylabel(series_latest_price.name, fontproperties=font)
     plt.plot(series_latest_price)
@@ -114,5 +110,19 @@ if __name__ == '__main__':
     plt.plot(series_exchange_rate)
     plt.grid(True)
     plt.show()
+
+
+if __name__ == '__main__':
+
+    # [step 1] :  Grab data
+    #  grab_data_hsgt()
+
+    # [step 2] : Organized Data
+    # update_all_organized_data('20180531')
+
+    # [step 3] : plotting
+    stock_i_want = ['000333', '000651', '600887']
+    for each_num in stock_i_want:
+        plot_price_fundflow(each_num)
 
 
