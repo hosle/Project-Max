@@ -5,10 +5,10 @@ Original@ AIStock
 """
 
 # 沪股通
-from .GrabJkqa import fetch_all_hgtb
+from .CrawlJkqa import fetch_all_hgtb
 # 深股通
-from .GrabJkqa import fetch_all_sgtb
-from .GrabJkqa import GrabParam
+from .CrawlJkqa import fetch_all_sgtb
+from .CrawlJkqa import GrabParam
 # from .GrabJkqa import *
 
 from .DataOrganizer import OrganizeParam
