@@ -11,22 +11,27 @@ import os
 import pathlib
 import json
 
+from eastmoney import CrawlParam
+from util import file_util
 
-__all__ = ['CrawlParam', 'fetch_data']
-
-
-class CrawlParam:
-    def __init__(self, _cookie_dict, _token):
-        self.cookie = _cookie_dict
-        self.token = _token
+__all__ = ['fetch_all_hsgt']
 
 
-def fetch_all_data(_stock_code, _stock_type, _crawl_param):
+# class CrawlParam:
+#     def __init__(self, _cookie_dict, _token):
+#         self.cookie = _cookie_dict
+#         self.token = _token
+
+
+def fetch_all_hsgt(_stock_code, _stock_type, _crawl_param):
+    print('start crawling hsgt data!')
+    _crawl_param = get_common_param(_stock_code, _stock_type, _crawl_param)
+
     path = os.getcwd() + '/data/eastmoney_hsgt/'
     file = path + '{:s}.txt'.format(_stock_code)
 
     result_list = []
-    res_json = fetch_data(_stock_code, _stock_type, _crawl_param)
+    res_json = do_crawl(_crawl_param)
     result_list.extend(res_json['result'])
     print("result length = {:d}".format(len(result_list)))
 
@@ -37,21 +42,20 @@ def fetch_all_data(_stock_code, _stock_type, _crawl_param):
         page_count += 1
         _crawl_param.url_param['p'] = page_count
         _crawl_param.url_param['page'] = page_count
-
-        res_json = fetch_data(_stock_code, _stock_type, _crawl_param)
+        print("p ={:d}".format(_crawl_param.url_param['p']))
+        print("page ={:d}".format(_crawl_param.url_param['page']))
+        res_json = do_crawl(_crawl_param)
         result_list.extend(res_json['result'])
         print("update result length to {:d} by page {:d}".format(len(result_list), page_count))
 
-    save_in_disk(path, file, json.dumps(result_list))
+    file_util.update_to_file(path, file, json.dumps(result_list))
 
 
-def fetch_data(_stock_code, _stock_type, _crawl_param):
-    # _crawl_param.dir_name = 'eastmoney_hsgt/'
-    # _crawl_param.file_name = _stock_code
+def get_common_param(_stock_code, _stock_type, _crawl_param):
     _crawl_param.stock_code = _stock_code
     _crawl_param.url = 'https://dcfm.eastmoney.com/EM_MutiSvcExpandInterface/api/js/get'
 
-    url_param = {'_': int(round(time.time() * 1000)),
+    _crawl_param.url_param = {'_': int(round(time.time() * 1000)),
                  'type': 'HSGTCJB',
                  'cmd': _stock_code,
                  'st': 'DetailDate',
@@ -62,17 +66,13 @@ def fetch_data(_stock_code, _stock_type, _crawl_param):
                  'ps': 20,
                  'token': _crawl_param.token,
                  'sty': _stock_type,
-                 # 'callback': '',
                  'js': '''{"result":(x),"TotalPage":(tp)}'''}
 
-    _crawl_param.url_param = url_param
-
-    ##get each
-    return do_grab(_crawl_param)
+    return _crawl_param
 
 
-def do_grab(crawl_param):
-    url = crawl_param.url
+def do_crawl(_crawl_param):
+    url = _crawl_param.url
 
     headers = {
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, "
@@ -80,10 +80,10 @@ def do_grab(crawl_param):
             'Host': 'dcfm.eastmoney.com',
             'Accept-Language': 'zh-tw',
             'Accept-Encoding': 'br, gzip, deflate',
-            'Refer': 'http://m.data.eastmoney.com/hsgt/detail/{:s}'.format(crawl_param.stock_code),
+            'Refer': 'http://m.data.eastmoney.com/hsgt/detail/{:s}'.format(_crawl_param.stock_code),
             'Accept': '*/*',
         }
-    res = requests.get(url, headers=headers, cookies=crawl_param.cookie, params=crawl_param.url_param)
+    res = requests.get(url, headers=headers, cookies=_crawl_param.cookie, params=_crawl_param.url_param)
     # print(res.url)
 
     if res.status_code != 200:
@@ -94,27 +94,21 @@ def do_grab(crawl_param):
     return res_json
 
 
-    # path = os.getcwd() + '/data/{:s}'.format(crawl_param.dir_name)
-    # file = path + '{:s}.txt'.format(crawl_param.file_name)
-    #
-    # save_in_disk(path, file, res.text)
-
-
-def update_to_file(_path, _filename, _content):
-
-    path = pathlib.Path(_path)
-    file = pathlib.Path(_filename)
-
-    if file.exists() and file.is_file():
-        _mode = 'a'
-    else:
-        _mode = 'w'
-
-        if not path.exists():
-            path.mkdir()
-        file.touch()
-    with open(_filename, _mode) as f:
-        f.write(_content)
+# def update_to_file(_path, _filename, _content):
+#
+#     path = pathlib.Path(_path)
+#     file = pathlib.Path(_filename)
+#
+#     if file.exists() and file.is_file():
+#         _mode = 'a'
+#     else:
+#         _mode = 'w'
+#
+#         if not path.exists():
+#             path.mkdir()
+#         file.touch()
+#     with open(_filename, _mode) as f:
+#         f.write(_content)
 
 
 def get_now_date():
@@ -122,11 +116,11 @@ def get_now_date():
     return date.strftime('%Y%m%d')
 
 
-def save_in_disk(path, filename, content):
-        if not os.path.exists(path):
-            os.makedirs(path)
-        with open(filename, 'w') as f:
-            f.write(content)
+# def save_in_disk(path, filename, content):
+#         if not os.path.exists(path):
+#             os.makedirs(path)
+#         with open(filename, 'w') as f:
+#             f.write(content)
 
 
 if __name__ == '__main__':
@@ -135,4 +129,4 @@ if __name__ == '__main__':
     token = '70f12f2f4f091e459a279469fe49eca5'
     crawl_param = CrawlParam(cookie, token)
 
-    fetch_data('000333', 'sgt', crawl_param)
+    fetch_all_hsgt('000333', 'sgt', crawl_param)

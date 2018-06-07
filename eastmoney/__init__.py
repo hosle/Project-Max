@@ -4,4 +4,6 @@ Created on 18/6/5
 Original@ AIStock
 """
 
-from .hsgt import crawl_to_local
+from .crawl_hsgt import fetch_all_hsgt
+from .CrawlParam import CrawlParam
+from .crawl_rzrq import fetch_all_rzrq
