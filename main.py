@@ -26,38 +26,44 @@ if __name__ == '__main__':
     # token = '70f12f2f4f091e459a279469fe49eca5'
     # crawl_param = crawl_eastmoney.CrawlParam(cookie, token)
     #
-    # crawl_eastmoney.fetch_data('000651', 'sgt', crawl_param)
+    # crawl_eastmoney.fetch_all_data('000333', 'sgt', crawl_param)
 
     #--- read local json---
-    file_name = 'data/eastmoney_hsgt/{:s}.txt'.format('000651')
+    file_name = 'data/eastmoney_hsgt/{:s}.txt'.format('000333')
     with open(file_name) as f:
         data = json.load(f)
 
-    data_df = pandas.DataFrame(data['result'])
+    data_df = pandas.DataFrame(data)
+    data_df.set_index('DetailDate', inplace=True)
+    data_df.index = pandas.DatetimeIndex(data_df.index)
+    data_df = data_df.drop_duplicates()
 
-    price_series = data_df.loc[::-1, 'Close']
+    price_series = data_df.loc[:, 'Close']
     length = len(price_series)
-    price_series = price_series.rename(lambda x: length - 1 - x)
-    jme_series = data_df.loc[::-1, 'SGTJME'].rename(lambda x:length - 1 - x)
+    # price_series = price_series.rename(lambda x: length - 1 - x)
+    jme_series = data_df.loc[:, 'SGTJME']#.rename(lambda x:length - 1 - x)
 
-    #--- plotting ---
-    fig, ax1 = plt.subplots()
-
-    x_tick = np.arange(len(price_series))
-    plt.xticks(x_tick)
-
-    ax1.plot(price_series)
-    ax1.set_ylabel('price', color='b')
-
-    ax2 = ax1.twinx()
-    ax2.plot(jme_series, 'r')
-    ax2.set_ylabel('Inflow Fund', color='r')
-
-    fig.tight_layout()
-    plt.grid(True)
-    plt.show()
-    # print(price_series)
-    print("价格和深股通净买额相关系数:{:.4f}".format(np.around(jme_series.corr(price_series), decimals=4)))
+    # print(data_df['DetailDate'])
+    print(price_series)
+    #
+    # #--- plotting ---
+    # fig, ax1 = plt.subplots()
+    #
+    # x_tick = np.arange(len(price_series))
+    # plt.xticks(x_tick)
+    #
+    # ax1.plot(price_series)
+    # ax1.set_ylabel('price', color='b')
+    #
+    # ax2 = ax1.twinx()
+    # ax2.plot(jme_series, 'r')
+    # ax2.set_ylabel('Inflow Fund', color='r')
+    #
+    # fig.tight_layout()
+    # plt.grid(True)
+    # plt.show()
+    # # print(price_series)
+    # print("价格和深股通净买额相关系数:{:.4f}".format(np.around(jme_series.corr(price_series), decimals=4)))
 
 
     #---- plot the pearson relationship----

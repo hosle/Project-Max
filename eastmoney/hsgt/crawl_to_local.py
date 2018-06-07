@@ -8,6 +8,9 @@ import requests
 import datetime
 import time
 import os
+import pathlib
+import json
+
 
 __all__ = ['CrawlParam', 'fetch_data']
 
@@ -18,9 +21,33 @@ class CrawlParam:
         self.token = _token
 
 
+def fetch_all_data(_stock_code, _stock_type, _crawl_param):
+    path = os.getcwd() + '/data/eastmoney_hsgt/'
+    file = path + '{:s}.txt'.format(_stock_code)
+
+    result_list = []
+    res_json = fetch_data(_stock_code, _stock_type, _crawl_param)
+    result_list.extend(res_json['result'])
+    print("result length = {:d}".format(len(result_list)))
+
+    page_count = 1
+    page_total = res_json['TotalPage']
+
+    while page_count < page_total:
+        page_count += 1
+        _crawl_param.url_param['p'] = page_count
+        _crawl_param.url_param['page'] = page_count
+
+        res_json = fetch_data(_stock_code, _stock_type, _crawl_param)
+        result_list.extend(res_json['result'])
+        print("update result length to {:d} by page {:d}".format(len(result_list), page_count))
+
+    save_in_disk(path, file, json.dumps(result_list))
+
+
 def fetch_data(_stock_code, _stock_type, _crawl_param):
-    _crawl_param.dir_name = 'eastmoney_hsgt/'
-    _crawl_param.file_name = _stock_code
+    # _crawl_param.dir_name = 'eastmoney_hsgt/'
+    # _crawl_param.file_name = _stock_code
     _crawl_param.stock_code = _stock_code
     _crawl_param.url = 'https://dcfm.eastmoney.com/EM_MutiSvcExpandInterface/api/js/get'
 
@@ -39,7 +66,9 @@ def fetch_data(_stock_code, _stock_type, _crawl_param):
                  'js': '''{"result":(x),"TotalPage":(tp)}'''}
 
     _crawl_param.url_param = url_param
-    do_grab(_crawl_param)
+
+    ##get each
+    return do_grab(_crawl_param)
 
 
 def do_grab(crawl_param):
@@ -54,18 +83,38 @@ def do_grab(crawl_param):
             'Refer': 'http://m.data.eastmoney.com/hsgt/detail/{:s}'.format(crawl_param.stock_code),
             'Accept': '*/*',
         }
-
     res = requests.get(url, headers=headers, cookies=crawl_param.cookie, params=crawl_param.url_param)
     # print(res.url)
 
     if res.status_code != 200:
             return False
     print(res.status_code)
+    res_json = res.json()
 
-    path = os.getcwd() + '/data/{:s}'.format(crawl_param.dir_name)
-    file = path + '{:s}.txt'.format(crawl_param.file_name)
+    return res_json
 
-    save_in_disk(path, file, res.text)
+
+    # path = os.getcwd() + '/data/{:s}'.format(crawl_param.dir_name)
+    # file = path + '{:s}.txt'.format(crawl_param.file_name)
+    #
+    # save_in_disk(path, file, res.text)
+
+
+def update_to_file(_path, _filename, _content):
+
+    path = pathlib.Path(_path)
+    file = pathlib.Path(_filename)
+
+    if file.exists() and file.is_file():
+        _mode = 'a'
+    else:
+        _mode = 'w'
+
+        if not path.exists():
+            path.mkdir()
+        file.touch()
+    with open(_filename, _mode) as f:
+        f.write(_content)
 
 
 def get_now_date():
